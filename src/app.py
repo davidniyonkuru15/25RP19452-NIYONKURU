@@ -93,6 +93,14 @@ def handle_errors(f):
             return jsonify({'error': str(e)}), 500
     return decorated_function
 
+# Initialize database on app startup
+@app.before_request
+def ensure_db():
+    """Ensure database exists before handling request"""
+    if not hasattr(app, 'db_initialized'):
+        init_db()
+        app.db_initialized = True
+
 # HTML Frontend Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
