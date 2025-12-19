@@ -112,7 +112,6 @@ GET    /api/v1/metrics                  # System metrics and statistics
 
 ### Local Development (Docker Compose)
 
-```bash
 # Navigate to project directory
 cd /home/vboxuser/25RP19452_NIYONKURU_IT_HELP_DESK/25RP19452-NIYONKURU
 
