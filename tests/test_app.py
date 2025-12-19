@@ -10,8 +10,17 @@ import os
 
 # Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+import tempfile
+import app as app_module
 
-from app import app, init_db, DATABASE
+# Use temp file database for testing (in-memory won't persist across connections)
+temp_db = os.path.join(tempfile.gettempdir(), 'test_tickets.db')
+try:
+    os.remove(temp_db)
+except OSError:
+    pass
+app_module.DATABASE = temp_db
+from app import app, init_db
 
 class HelpdeskTestCase(unittest.TestCase):
     """Test cases for the helpdesk API"""
