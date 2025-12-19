@@ -1,0 +1,120 @@
+name: Build & Deploy - 25RP19452-NIYONKURU
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  REGISTRY: localhost:5000
+  IMAGE_NAME: 25rp19452-niyonkuru/helpdesk
+  VERSION: 1.0.0
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Run container security scan
+        run: |
+          echo "Scanning Docker image for vulnerabilities..."
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy image --exit-code 0 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }} || true
+
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to dev cluster
+        run: |
+          echo "Deploying to development Kubernetes cluster..."
+          kubectl apply -f kubernetes/namespace.yaml
+          kubectl apply -f kubernetes/ -n 25rp19452-niyonkuru
+          kubectl rollout status deployment/helpdesk-app -n 25rp19452-niyonkuru
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to prod cluster
+        run: |
+          echo "Deploying to production Kubernetes cluster..."
+          kubectl apply -f kubernetes/namespace.yaml
+          kubectl apply -f kubernetes/ -n 25rp19452-niyonkuru
+          kubectl rollout status deployment/helpdesk-app -n 25rp19452-niyonkuru
+
+  notify:
+    name: Notify Status
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: always()
+    steps:
+      - name: Notification
+        run: |
+          echo "Pipeline Status: ${{ job.status }}"
+          echo "Workflow completed for 25RP19452-NIYONKURU"

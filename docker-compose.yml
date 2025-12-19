@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  helpdesk-app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: 25RP19452-NIYONKURU-helpdesk
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SERVICE_NAME=25RP19452-NIYONKURU
+    volumes:
+      - helpdesk-data:/data
+      - helpdesk-logs:/var/log/helpdesk
+    restart: unless-stopped
+    networks:
+      - helpdesk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  db-backup:
+    image: alpine:latest
+    container_name: 25RP19452-NIYONKURU-backup
+    volumes:
+      - helpdesk-data:/data
+      - helpdesk-backups:/backups
+    entrypoint: /bin/sh -c
+    command: >
+      "while true; do
+        cp /data/tickets.db /backups/tickets-$(date +\%Y\%m\%d-\%H\%M\%S).db 2>/dev/null || true;
+        sleep 3600;
+      done"
+    restart: unless-stopped
+    networks:
+      - helpdesk-network
+
+volumes:
+  helpdesk-data:
+    driver: local
+  helpdesk-logs:
+    driver: local
+  helpdesk-backups:
+    driver: local
+
+networks:
+  helpdesk-network:
+    driver: bridge
