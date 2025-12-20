@@ -398,6 +398,26 @@ CREATE TABLE metrics (
 - Automated daily backups
 - 7-day retention policy
 - Database restore capability
+
+## Docker Hub: Create an Access Token (for CI)
+
+- Go to Docker Hub: https://hub.docker.com/
+- Sign in, then open **Account Settings → Security → New Access Token**.
+- Give the token a name (for example, `github-actions`) and create it.
+- Copy the generated token immediately — you will not be able to view it again.
+
+Add these repository secrets in GitHub: **Repository → Settings → Secrets and variables → Actions → New repository secret**
+- `DOCKERHUB_USERNAME` — your Docker Hub username
+- `DOCKERHUB_TOKEN` — the access token you just created
+
+The CI workflow (`.github/workflows/pipeline.yml`) uses these secrets during the `build` job to authenticate and push images to Docker Hub.
+
+Triggering the pipeline after adding secrets:
+- Push a small change (this commit will trigger a run), or run the workflow manually from GitHub: **Actions → Workflows → Campus IT Helpdesk CI/CD Pipeline - 25RP19452-NIYONKURU → Run workflow** and choose `staging` or `production`.
+
+Optional follow-ups:
+- I can provide step-by-step screenshots showing how to create the token.
+- After you add the secrets, I can help review the Actions run logs — either paste them here or allow me to inspect them.
 - Log archival
 
 ## Troubleshooting
