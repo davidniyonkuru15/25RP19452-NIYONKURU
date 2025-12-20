@@ -37,7 +37,7 @@ spec:
         - name: http
           containerPort: 5000
           protocol: TCP
-        environment:
+        env:
         - name: SERVICE_NAME
           value: "25RP19452-NIYONKURU"
         - name: FLASK_ENV
@@ -74,8 +74,7 @@ spec:
           mountPath: /var/log/helpdesk
       volumes:
       - name: helpdesk-storage
-        persistentVolumeClaim:
-          claimName: helpdesk-pvc
+        emptyDir: {}
       - name: log-volume
         emptyDir: {}
       securityContext:

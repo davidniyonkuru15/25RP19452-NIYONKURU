@@ -8,6 +8,7 @@ spec:
     storage: 5Gi
   accessModes:
     - ReadWriteOnce
+  storageClassName: standard
   hostPath:
     path: "/mnt/data/helpdesk"
 
