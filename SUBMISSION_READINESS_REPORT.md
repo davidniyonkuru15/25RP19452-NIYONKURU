@@ -395,3 +395,101 @@ The project demonstrates a complete, production-ready DevOps implementation with
 ---
 
 For submission details and file locations, see `VERIFICATION_CHECKLIST.md`
+
+---
+
+# Campus IT Helpdesk Microservice - Submission Evidence Report
+
+**Project ID:** 25RP19452-NIYONKURU  
+**Student:** Niyonkuru (25RP19452)  
+**Date:** December 20, 2025
+
+---
+
+## 1. Infrastructure & VM Setup
+
+- **VM running in VirtualBox**
+  - Screenshot: VirtualBox UI showing running VM
+- **OS and dependencies**
+  - Screenshot: Terminal output of `lsb_release -a` or `cat /etc/os-release`
+  - Screenshot: `docker --version`, `kubectl version --client`
+- **Resource allocation**
+  - Screenshot: VirtualBox settings window (CPU, RAM, disk)
+- **Network configuration**
+  - Screenshot: Output of `ip a` or `ifconfig`
+  - Screenshot: `ping google.com`
+
+## 2. Version Control & Git Workflow
+
+- **Git remote and branch**
+  - Screenshot: `git remote -v` and `git branch -a`
+- **Commit history**
+  - Screenshot: `git log --oneline --graph --all`
+- **Pull request/merge**
+  - Screenshot: PR on GitHub/GitLab or terminal merge
+- **Merge conflict resolution**
+  - Screenshot: Terminal or PR UI showing conflict resolution
+
+## 3. CI Pipeline Implementation
+
+- **CI/CD pipeline run**
+  - Screenshot: Successful pipeline run in GitHub Actions or GitLab CI
+- **Pipeline config**
+  - Screenshot: `.github/workflows/pipeline.yml` or `.gitlab-ci.yml` in repo
+- **Secrets config**
+  - Screenshot: GitHub Actions/GitLab CI secrets page (redact values)
+
+## 4. Containerization & Registry
+
+- **Docker image build**
+  - Screenshot: `docker images | grep 25RP19452`
+- **Docker Hub/GHCR**
+  - Screenshot: Image listing in Docker Hub or GHCR web UI
+- **Running container**
+  - Screenshot: `docker ps` showing helpdesk container
+- **.dockerignore**
+  - Screenshot: `.dockerignore` file in repo
+
+## 5. Deployment & Automation
+
+- **Kubernetes pods/services**
+  - Screenshot: `kubectl get pods -n 25rp19452-niyonkuru`
+  - Screenshot: `kubectl get svc -n 25rp19452-niyonkuru`
+- **HPA scaling**
+  - Screenshot: `kubectl get hpa -n 25rp19452-niyonkuru`
+- **Deployment script**
+  - Screenshot: Running `./automation/deploy.sh` in terminal
+
+## 6. Monitoring & Reliability
+
+- **Prometheus targets**
+  - Screenshot: Prometheus UI showing helpdesk-app target as UP
+- **Grafana dashboard**
+  - Screenshot: Grafana dashboard with metrics
+- **Loki logs**
+  - Screenshot: Loki or Grafana logs panel
+- **Alerting**
+  - Screenshot: Prometheus alerts page
+- **Health checks**
+  - Screenshot: `kubectl describe pod <helpdesk-pod> -n 25rp19452-niyonkuru` (liveness/readiness)
+
+## 7. Testing & Quality
+
+- **Unit test results**
+  - Screenshot: Output of `pytest` or `python -m unittest discover tests`
+
+## 8. Documentation & Evidence
+
+- **Project structure**
+  - Screenshot: Output of `tree -L 2` in project root
+- **Evidence folder**
+  - Screenshot: `ls docs/evidence/`
+
+---
+
+> **Instructions:**
+> 1. Insert each screenshot under the relevant section above.
+> 2. Add a caption for each (e.g., "Figure 1: Kubernetes pods running").
+> 3. Redact any sensitive information before including.
+
+**End of Report**

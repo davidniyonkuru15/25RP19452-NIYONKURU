@@ -4,44 +4,46 @@ metadata:
   name: prometheus-config
   namespace: 25rp19452-niyonkuru
 data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-      evaluation_interval: 15s
-      external_labels:
-        monitor: 'helpdesk-monitor'
-        environment: 'production'
-        service: '25RP19452-NIYONKURU'
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: prometheus-config
+    namespace: 25rp19452-niyonkuru
+  data:
+    prometheus.yml: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+        external_labels:
+          monitor: 'helpdesk-monitor'
+          environment: 'production'
+          service: '25RP19452-NIYONKURU'
 
-    scrape_configs:
-      - job_name: 'helpdesk-app'
-        static_configs:
-          - targets: ['helpdesk-app:5000']
-        metrics_path: '/metrics'
-        scrape_interval: 10s
+      rule_files:
+        - '/etc/prometheus/rules/alerts.yml'
 
-      - job_name: 'kubernetes-apiservers'
-        kubernetes_sd_configs:
-          - role: endpoints
-        scheme: https
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      scrape_configs:
+        - job_name: 'helpdesk-app'
+          static_configs:
+            - targets: ['helpdesk-service-headless:5000']
+          metrics_path: '/metrics'
+          scrape_interval: 10s
 
-      - job_name: 'kubernetes-nodes'
-        kubernetes_sd_configs:
-          - role: node
-        scheme: https
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        - job_name: 'kubernetes-apiservers'
+          kubernetes_sd_configs:
+            - role: endpoints
+          scheme: https
+          tls_config:
+            ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: prometheus
-  namespace: 25rp19452-niyonkuru
+        - job_name: 'kubernetes-nodes'
+          kubernetes_sd_configs:
+            - role: node
+          scheme: https
+          tls_config:
+            ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
   labels:
     app: prometheus
 spec:
@@ -76,12 +78,17 @@ spec:
           mountPath: /etc/prometheus
         - name: storage
           mountPath: /prometheus
+        - name: rules
+          mountPath: /etc/prometheus/rules
       volumes:
       - name: config
         configMap:
           name: prometheus-config
       - name: storage
         emptyDir: {}
+      - name: rules
+        configMap:
+          name: prometheus-rules
 
 ---
 apiVersion: v1
@@ -138,3 +145,32 @@ subjects:
 - kind: ServiceAccount
   name: prometheus-sa
   namespace: 25rp19452-niyonkuru
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: 25rp19452-niyonkuru
+data:
+  alerts.yml: |
+    groups:
+    - name: helpdesk-alerts
+      rules:
+      - alert: HelpdeskTargetDown
+        expr: up{job="helpdesk-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Helpdesk target is down"
+          description: "The helpdesk application target has been down for more than 1 minute."
+
+      - alert: PrometheusInstanceDown
+        expr: up{job="prometheus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus instance is down"
+          description: "Prometheus instance is not reporting as up."

@@ -376,6 +376,35 @@ def health_check():
         'service': 'Campus IT Helpdesk - 25RP19452-NIYONKURU'
     }), 200
 
+@app.route('/metrics', methods=['GET'])
+def prometheus_metrics():
+    """Prometheus metrics endpoint in text/plain format"""
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM tickets')
+        total_tickets = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM tickets WHERE status='open'")
+        open_tickets = c.fetchone()[0]
+        conn.close()
+        
+        metrics = f"""# HELP helpdesk_tickets_total Total number of tickets
+# TYPE helpdesk_tickets_total gauge
+helpdesk_tickets_total{{service="25RP19452-NIYONKURU"}} {total_tickets}
+
+# HELP helpdesk_tickets_open Open tickets count
+# TYPE helpdesk_tickets_open gauge
+helpdesk_tickets_open{{service="25RP19452-NIYONKURU"}} {open_tickets}
+
+# HELP helpdesk_up Application health status
+# TYPE helpdesk_up gauge
+helpdesk_up{{service="25RP19452-NIYONKURU"}} 1
+"""
+        return metrics, 200, {'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'}
+    except Exception as e:
+        logger.error(f"Error generating metrics: {e}")
+        return "# Error generating metrics\nhelpdesk_up 0\n", 500, {'Content-Type': 'text/plain'}
+
 @app.route('/api/v1/tickets', methods=['POST'])
 @handle_errors
 def create_ticket():
