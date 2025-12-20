@@ -104,7 +104,7 @@ jobs:
 
       - name: Archive test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ env.PROJECT_ID }}
           path: |
@@ -332,7 +332,7 @@ jobs:
           echo "Status: ${{ job.status }}"
 
       - name: Upload deployment report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-report-${{ env.PROJECT_ID }}
           path: |
@@ -374,7 +374,7 @@ jobs:
 
       - name: Save artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pipeline-artifacts-${{ env.PROJECT_ID }}
           path: |
