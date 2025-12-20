@@ -33,8 +33,8 @@ env:
   PROJECT_ID_LOWER: 25rp19452-niyonkuru
   REGISTRY: ghcr.io
   DOCKERHUB_REGISTRY: docker.io
-  GHCR_IMAGE: ghcr.io/davidniyonkuru15/25rp19452-niyonkuru/helpdesk
-  IMAGE_NAME: davidniyonkuru/25rp19452-niyonkuru/helpdesk
+  GHCR_IMAGE: ghcr.io/davidniyonkuru15/25rp19452-niyonkuru
+  IMAGE_NAME: davidniyonkuru/25rp19452-niyonkuru
   DOCKER_IMAGE_TAG: ${{ github.run_number }}
   KUBE_NAMESPACE: 25rp19452-niyonkuru
   APP_NAME: helpdesk-app
