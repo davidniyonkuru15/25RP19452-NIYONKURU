@@ -182,7 +182,6 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          cache-to: type=gha,mode=max
 
       - name: Image metadata
         run: |
